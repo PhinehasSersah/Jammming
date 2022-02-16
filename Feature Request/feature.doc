@@ -1,0 +1,37 @@
+Design Document
+
+##OBJECTIVE
+This feature is aimed at allowing the user to listen to a preview of the track before adding it to the playlist that will be saved to Spotify.
+
+###BACKGROUND 
+Currently, the track component  only displays the track’s name, artist and album. However, allowing the user to listen to a 30 second preview of the track would improve the user experience. This feature accomplishes the following:
+Displays a preview button for the tracks that have this available on Spotify
+Hides the preview button for the tracks that have a preview_url with the value of null on Spotify
+Allows the user to click on the button to listen to the preview of the song 
+TECHNICAL DESIGN
+
+The new feature will be implemented within the track component. We will add two parameters to the state of this component to create an audio file from the preview link returned from the API and to keep track of whether a track is being currently played, so that a play/pause icon can be displayed accordingly.
+
+Change the search method in Spotify.js to retrieve the preview link from Spotify
+Currently, the data we get from the Spotify API are the track name, artist and album, track id and uri. Edit the mapped array in the search method in Spotify.js to retrieve the preview_link value from the Spotify API: https://developer.spotify.com/documentation/web-api/reference/object-model/ 
+Add a play button to each track
+Add an anchor element and a volume up icon to the Track.js component. This will act as a play button and it will be used to play the preview of the selected track. Add link to fontawesome in the index.html in the public directory so that the icon can be displayed correctly. Change Track.css to style the button. 
+
+Create an event handler method in the Track component
+All of the methods to interact with the track preview will be created in the Track component. This is due to the fact that the preview_url is linked to the single track and we want to be able to manage this from within that component. To make sure we are getting the correct data from the API, create an event handler method that console.logs the track.props.preview passed from the Spotify API when the play button is clicked. Pass this method to the play button as an onClick attribute. When you click on this button, you will notice that the API will either return a string or null. 
+Render the button according to the value of the returned preview_link
+We want to make sure that the play button is only displayed when the API returns a string. In the Track class, create a method called renderPreview. Inside this method, write an if statement that specifies that the play button should be rendered only if the preview_link is a string. Bind the current value of this to renderPreview(). If the statement resolves as true, we want to render the play button. Therefore move the play button you created within the render method to the renderPreview method. Call this.renderAction from within the render method to display the play button when the API returns a string. 
+Play method
+The play button will need to play the preview track and update the state of track to make sure we know a track is being played. Firstly, inside the constructor set this.state.play to false and audio to new Audio(this.props.track.preview). The audio key converts the link retrieved from the API when the button is clicked to an audio file that can be played. 
+Create a play method that sets the state of play to true and that plays the this.state.audio. Bind the current value of this to play(). Pass the play method to the play button within renderPreview() as an onClick attribute - you will need this to test that the track is being played but you will then call a different method as an onClick attribute.
+Pause and togglePlay methods
+One part of our application we need to update is to switch the play icon to the pause icon, and to pause the song that the user is currently previewing. Create a pause method that sets the state of play to false and that pauses the this.state.audio. Edit the event handler method you created earlier and rename it togglePlay(). This method will use a ternary statement to understand if this.state.play is true and to switch between play() and pause(). Bind the current value of this to pause() and togglePlay(). 
+Edit the renderPreview method
+Add another if statement within the renderPreview method that evaluates whether this.state.play is true. In both the if and else statements, we will need to call the togglePlay method which will in turn call either play() or pause(). If this.state.play evaluates false, return an volume-up icon, if this.state.play evaluates true, return a pause icon. 
+
+CAVEATS
+
+FUNCTIONALITY IMPROVEMENT
+Currently, a user is able to preview multiple song at the same time, therefore overlapping audio tracks. An additional conditional statement could be introduced to check if there is a song already being played, which would then be paused if the user clicks on the play button for a different song.
+ALTERNATIVE IMPLEMENTATION 
+The same functionality would have been reached by adding an audio element to the div “Track-information”and calling this.props.track.preview from within this element. However, the layout of the page would need to  would be accommodated to include this bigger element. 
